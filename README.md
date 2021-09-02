@@ -34,7 +34,7 @@ sudo dpkg -i twitrends_1.0.0-2_all.deb
 .rpm package installation:
 
 ```bash
-sudo rpm -i twitrends_1.0.0-2_all.deb
+sudo rpm -i twitrends_1.0.0-1_all.rpm
 ```
 
 ## Usage
