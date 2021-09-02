@@ -11,7 +11,7 @@ Twitrends does not store the actual tweet content, nor the name of the author or
 ## Prerequisites
 
 To use Twitrends, access to the [Twitter Developer Portal](https://developer.twitter.com/en/apply-for-access) with working credentials to the Twitter API is needed. \
-Once access and credentials are obtained, the below packages need to be installed. \
+Once access and credentials are obtained, the below packages need to be installed. 
 
 Keep in mind, you need to have a configured an [Elasticsearch](https://www.elastic.co/) instance with https, username and password.
 
