@@ -1,0 +1,18 @@
+{
+    "elastic": {
+        "username": "",
+        "password": "",
+        "ip": "",
+        "port": ""
+    },
+    "auth_handle_creds": {
+        "consumer_key": "",
+        "consumer_secret": ""
+    },
+    "access_token": {
+        "key": "",
+        "secret": ""
+    },
+    "search_keyword": "",
+    "search_pattern": ""
+}
