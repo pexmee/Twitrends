@@ -19,13 +19,17 @@ Once access and credentials are obtained, the below packages need to be installe
 
 Keep in mind, a configured [Elasticsearch](https://www.elastic.co/) instance with https, username and password is required.
 
-[tweepy - twitter python library](https://www.tweepy.org/)
+[tweepy](https://www.tweepy.org/) - Twitter python library
 ```bash
 pip install tweepy
 ```
-[elasticsearch python client](https://pypi.org/project/elasticsearch/)
+[elasticsearch](https://pypi.org/project/elasticsearch/) - Elasticsearch python client
 ```bash
 pip install elasticsearch
+```
+[urllib3](https://pypi.org/project/urllib3/) - HTTP library
+```bash
+pip install urllib3
 ```
 
 ## Installation
