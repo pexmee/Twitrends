@@ -3,7 +3,7 @@
 Twitrends is a utility to be used by developers with access to the Twitter Developer Portal.
 
 Twitrends is used for listening to new tweets containing a keyword and pattern. \
-The utility will send all new tweets matching the keyword and pattern to an elasticsearch instance,
+The utility will send all new tweets matching the keyword and pattern to an Elasticsearch instance,
 and will keep all existing entries updated with the current count of retweets and likes. 
 
 Twitrends does not store the actual tweet content, nor the name of the author or profile. 
@@ -11,7 +11,9 @@ Twitrends does not store the actual tweet content, nor the name of the author or
 ## Prerequisites
 
 To use Twitrends, access to the [Twitter Developer Portal](https://developer.twitter.com/en/apply-for-access) with working credentials to the Twitter API is needed. \
-Once access and credentials are obtained, the below packages need to be installed.
+Once access and credentials are obtained, the below packages need to be installed. \
+
+Keep in mind, you need to have a configured an [Elasticsearch](https://www.elastic.co/) instance with https, username and password.
 
 [tweepy - twitter python library](https://www.tweepy.org/)
 ```bash
