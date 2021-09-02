@@ -8,6 +8,10 @@ and will keep all existing entries updated with the current count of retweets an
 
 Twitrends does not store the actual tweet content, nor the name of the author or profile. 
 
+## Development
+
+Currently in development. Please refer to the issues to see a little bit about what is going to be added in the future. 
+
 ## Prerequisites
 
 To use Twitrends, access to the [Twitter Developer Portal](https://developer.twitter.com/en/apply-for-access) with working credentials to the Twitter API is needed. \
