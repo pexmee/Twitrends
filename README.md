@@ -1,4 +1,4 @@
-# Twitrends (beta)
+# Twitrends (alpha)
 
 Twitrends is a utility to be used by developers with access to the Twitter Developer Portal.
 
