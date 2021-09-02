@@ -61,7 +61,8 @@ and add your configuration. Here's an example configuration:
    "search_pattern":"icecream"
 }
 ```
-Note: The credentials are for example use and will not work. You need to use the credentials given to you via the Twitter Developer Portal.
+Note: The credentials are for example use and will not work. 
+Only official credentials from the Twitter Developer Portal will be accepted.
 
 Once the configuration is done, enable and start the service:
 ```bash
