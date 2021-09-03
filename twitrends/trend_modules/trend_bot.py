@@ -213,6 +213,10 @@ class TrendBot:
                                 updated_fields["doc"]["likes"] = tweet.favorite_count
 
                             if updated_fields:
+                                updated_fields["doc"][
+                                    "updated_timestamp"
+                                ] = datetime.datetime.now().isoformat()
+
                                 obj.es.update(
                                     index="tweet", id=hit["_id"], body=updated_fields
                                 )
