@@ -1,6 +1,5 @@
 import datetime
 import logging
-import os
 import re
 import signal
 import sys
@@ -12,7 +11,7 @@ from typing import Callable, Dict, Generator, List, Optional, Union
 
 import tweepy
 from elasticsearch import Elasticsearch
-from trend_modules.settings import Settings
+from trend_modules.settings import TWEET_IDS, Settings
 
 
 class Seppuku:
@@ -131,11 +130,11 @@ class TrendBot:
         try:
             self.tweet_stream.filter(track=self.settings.keywords)
 
-        except IncompleteRead:
-            logging.exception("IncompleteRead in stream_twitter:")
+        except IncompleteRead as exc:
+            logging.exception("IncompleteRead in stream_twitter:", exc_info=exc)
 
-        except Exception:
-            logging.exception("unknown exception in stream_twitter:")
+        except Exception as exc:
+            logging.exception("unknown exception in stream_twitter:", exc_info=exc)
 
     def dump_findings(self, dump: Optional[Dict[str, Union[str, int]]] = None):
         """
@@ -151,7 +150,7 @@ class TrendBot:
                 logging.info("dumping findings")
 
                 with open(
-                    os.path.join(os.path.dirname(__file__), "twitter_ids.txt"),
+                    TWEET_IDS,
                     "a",
                 ) as twitter_h:
                     for dump in self.dumps:
@@ -221,13 +220,14 @@ class TrendBot:
                                     index="tweet", id=hit["_id"], body=updated_fields
                                 )
 
-                    except KeyError:
+                    except KeyError as exc:
                         logging.exception(
-                            "KeyError in update_fields - couldn't find expected result"
+                            "KeyError in update_fields - couldn't find expected result",
+                            exc_info=exc,
                         )
 
-            except Exception:
-                logging.exception("exception in update_fields")
+            except Exception as exc:
+                logging.exception("exception in update_fields", exc_info=exc)
 
         try:
             sleep(100)
@@ -249,8 +249,8 @@ class TrendBot:
             if buffer:
                 update_fields(self, buffer)
 
-        except Exception:
-            logging.exception("exception in update_tweets:")
+        except Exception as exc:
+            logging.exception("exception in update_tweets:", exc_info=exc)
 
         finally:
             self.mutex.release()
@@ -283,8 +283,8 @@ class TrendBot:
                     if thread is not None and thread.is_alive():
                         thread.join(1)
 
-            except KeyboardInterrupt:
-                logging.debug("received CTRL+C, killing threads..")
+            except KeyboardInterrupt as exc:
+                logging.debug("received CTRL+C, killing threads..", exc_info=exc)
                 for thread in threads:
                     thread.sig_kill = True
 
@@ -301,8 +301,8 @@ class TrendBot:
         try:
             self._run_parallel(self.stream_twitter, self.update_tweets)
 
-        except Exception:
-            logging.exception("exception in listen:")
+        except Exception as exc:
+            logging.exception("exception in listen:", exc_info=exc)
             sys.exit(1)
 
     @staticmethod
@@ -310,12 +310,10 @@ class TrendBot:
         """Retrieves twitter IDs saved in twitter_ids.txt"""
 
         try:
-            with open(
-                os.path.join(os.path.dirname(__file__), "../twitter_ids.txt")
-            ) as read_h:
+            with open(TWEET_IDS) as read_h:
                 for row in read_h:
                     yield row.strip()
 
-        except FileNotFoundError:
-            logging.info("couldn't find tweet cache, sending empty list")
+        except FileNotFoundError as exc:
+            logging.info("couldn't find tweet cache, sending empty list", exc_info=exc)
             return []

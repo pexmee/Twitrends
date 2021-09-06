@@ -5,6 +5,8 @@ import os
 import sys
 from typing import List
 
+TWEET_IDS = os.path.join(os.path.dirname(__file__), "../twitter_ids.txt")
+
 
 class Settings:
     def __init__(self):
