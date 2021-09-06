@@ -32,11 +32,11 @@ pip install elasticsearch
 pip install urllib3
 ```
 
-## Installation
-## NOTE: Right now the .deb and .rpm packages are outdated. 
-## Please clone repo and set up manually - fix for this is coming soon  
+<!-- ## Installation -->
 
-.deb package installation:
+## NOTE: <br>Right now the .deb and .rpm packages are outdated. <br> Please clone repo and set up manually - fix for this is coming soon  
+
+<!-- .deb package installation:
 
 ```bash
 sudo dpkg -i twitrends_1.0.0-2_all.deb
@@ -45,7 +45,8 @@ sudo dpkg -i twitrends_1.0.0-2_all.deb
 
 ```bash
 sudo rpm -i twitrends_1.0.0-1_all.rpm
-```
+``` -->
+<br>
 
 ## Usage
 Open trends_settings.json
