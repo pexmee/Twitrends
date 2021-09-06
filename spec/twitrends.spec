@@ -32,15 +32,16 @@ mkdir -p $RPM_BUILD_ROOT/usr/local/bin/Twitrends/
 mkdir -p $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
 mkdir -p $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
 
-cp Twitrends/README.md $RPM_BUILD_ROOT/usr/local/bin/Twitrends
-cp -r Twitrends/license $RPM_BUILD_ROOT/usr/local/bin/Twitrends
-cp Twitrends/twitrends/trend_modules/__init__.py $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
-cp Twitrends/twitrends/trends_settings.json  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
-cp Twitrends/twitrends/twitrends.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
-cp Twitrends/twitrends/twitter_ids.txt  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
-cp Twitrends/twitrends/trend_modules/trend_bot.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
-cp Twitrends/twitrends/trend_modules/settings.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
-cp log/twitrends.log $RPM_BUILD_ROOT/usr/local/log
+cp /home/runner/work/Twitrends/Twitrends/README.md $RPM_BUILD_ROOT/usr/local/bin/Twitrends
+cp -r /home/runner/work/Twitrends/Twitrends/license $RPM_BUILD_ROOT/usr/local/bin/Twitrends
+cp /home/runner/work/Twitrends/Twitrends/twitrends/trend_modules/__init__.py $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
+cp /home/runner/work/Twitrends/Twitrends/twitrends/trend_modules/trend_bot.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
+cp /home/runner/work/Twitrends/Twitrends/twitrends/trend_modules/settings.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
+cp /home/runner/work/Twitrends/Twitrends/twitrends/trends_settings.json  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
+cp /home/runner/work/Twitrends/Twitrends/twitrends/twitrends.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
+cp /home/runner/work/Twitrends/Twitrends/twitrends/twitter_ids.txt  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
+
+touch $RPM_BUILD_ROOT/usr/local/log/twitrends.log
 touch $RPM_BUILD_ROOT/lib/systemd/system/twitrends.service
 echo > $RPM_BUILD_ROOT/usr/local/log/twitrends.log # Empty logfile
 echo > $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/twitter_ids.txt # Empty cached ids
