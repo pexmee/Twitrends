@@ -31,10 +31,10 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-   - name: Build RPM package
-     id: rpm
-     uses: naveenrajm7/rpmbuild@master
-     with:
+    - name: Build RPM package
+      id: rpm
+      uses: naveenrajm7/rpmbuild@master
+      with:
        spec_file: "/home/runner/work/Twitrends/Twitrends/twitrends/spec/twitrends.spec"
     
     - name: check-ls
@@ -45,6 +45,6 @@ jobs:
       
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
-        with:
+      with:
           name: Binary RPM
           path: ${{ steps.rpm.outputs.rpm_dir_path }}
