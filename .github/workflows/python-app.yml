@@ -35,7 +35,13 @@ jobs:
       id: rpm
       uses: naveenrajm7/rpmbuild@master
       with:
-        spec_file: "../spec/twitrends.spec"
+        spec_file: "https://github.com/pexmee/Twitrends/blob/master/spec/twitrends.spec"
+    
+    - name: check-ls
+      uses: ls /home/runner/
+      
+    - name: check-pwd
+      uses: pwd
       
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
