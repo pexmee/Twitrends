@@ -38,7 +38,7 @@ jobs:
        # spec_file: "https://github.com/pexmee/Twitrends/blob/master/spec/twitrends.spec"
     
     - name: check-ls
-      run: ls /home/runner/
+      run: ls /home/runner/work/Twitrends/Twitrends
       
     - name: check-pwd
       run: pwd
