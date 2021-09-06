@@ -32,15 +32,15 @@ mkdir -p $RPM_BUILD_ROOT/usr/local/bin/Twitrends/
 mkdir -p $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
 mkdir -p $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
 
-cp ~/repos/big-brother/Twitrends/README.md $RPM_BUILD_ROOT/usr/local/bin/Twitrends
-cp -r ~/repos/big-brother/Twitrends/license $RPM_BUILD_ROOT/usr/local/bin/Twitrends
-cp ~/repos/big-brother/Twitrends/twitrends/trend_modules/__init__.py $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
-cp ~/repos/big-brother/Twitrends/twitrends/trends_settings.json  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
-cp ~/repos/big-brother/Twitrends/twitrends/twitrends.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
-cp ~/repos/big-brother/Twitrends/twitrends/twitter_ids.txt  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
-cp ~/repos/big-brother/Twitrends/twitrends/trend_modules/trend_bot.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
-cp ~/repos/big-brother/Twitrends/twitrends/trend_modules/settings.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
-cp ~/repos/big-brother/log/twitrends.log $RPM_BUILD_ROOT/usr/local/log
+cp Twitrends/README.md $RPM_BUILD_ROOT/usr/local/bin/Twitrends
+cp -r Twitrends/license $RPM_BUILD_ROOT/usr/local/bin/Twitrends
+cp Twitrends/twitrends/trend_modules/__init__.py $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
+cp Twitrends/twitrends/trends_settings.json  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
+cp Twitrends/twitrends/twitrends.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
+cp Twitrends/twitrends/twitter_ids.txt  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends
+cp Twitrends/twitrends/trend_modules/trend_bot.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
+cp Twitrends/twitrends/trend_modules/settings.py  $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/trend_modules
+cp log/twitrends.log $RPM_BUILD_ROOT/usr/local/log
 touch $RPM_BUILD_ROOT/lib/systemd/system/twitrends.service
 echo > $RPM_BUILD_ROOT/usr/local/log/twitrends.log # Empty logfile
 echo > $RPM_BUILD_ROOT/usr/local/bin/Twitrends/twitrends/twitter_ids.txt # Empty cached ids
@@ -95,19 +95,3 @@ rm /usr/local/log/twitrends.log
 %changelog
 * Sun Aug 29 2021 Peter Yliniemi <peter.yliniemi@gmail.com>
   - Created first RPM package for Twitrends
-
-
-#echo "[Unit]
-#Description=Twitrends service
-#After=network.target
-#
-#[Service]
-#Type=simple
-#Restart=on-failure
-#User=$USER
-#ExecStart=python3 /usr/local/bin/Twitrends/twitrends/twitrends.py
-#RestartSec=20
-#
-#[Install]
-#WantedBy=multi-user.target" >> $RPM_BUILD_ROOT/lib/systemd/system/twitrends.service
-
