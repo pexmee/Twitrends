@@ -85,7 +85,7 @@ and add your configuration. Here's an example configuration:
 Note: The credentials are for example use and will not work. 
 Only official credentials from the Twitter Developer Portal will be accepted.
 
-Once the configuration is done, enable and start the service:
+Once the configuration is done, [manually add the service](https://medium.com/@benmorel/creating-a-linux-service-with-systemd-611b5c8b91d6), enable and start the service: <br> Note: this will be fixed once .rpm & .deb packages are updated.
 ```bash
 sudo systemctl enable twitrends.service
 sudo systemctl start twitrends.service
