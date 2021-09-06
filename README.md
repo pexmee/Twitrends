@@ -51,22 +51,32 @@ and add your configuration. Here's an example configuration:
 
 ```json
 {
-   "elastic":{
-      "username":"asdf",
-      "password":"fdsa",
-      "ip":"127.0.0.1",
-      "port":"9200"
-   },
-   "auth_handle_creds":{
-      "consumer_key":"asdf1234569ads9as99ds9dds99ad",
-      "consumer_secret":"asdf1234569ads9as99ds9dds99ad"
-   },
-   "access_token":{
-      "key":"asdf1234569ads9as99ds9dds99ad",
-      "secret":"asdf1234569ads9as99ds9dds99ad"
-   },
-   "search_keyword":"icecream",
-   "search_pattern":"icecream"
+    "elastic": {
+        "username": "example",
+        "password": "example",
+        "ip": "127.0.0.1",
+        "port": "9200"
+    },
+    "auth_handle_creds": {
+        "consumer_key": "aafdsfasdddafldsfdlsfdfd",
+        "consumer_secret": "aafdsfasdddafldsfdlsfdfd"
+    },
+    "access_token": {
+        "key": "aafdsfasdddafldsfdlsfdfd",
+        "secret": "aafdsfasdddafldsfdlsfdfd"
+    },
+    "search_rules": {
+       "example1" : {
+          "search_keyword" : "example1",
+	      "search_pattern" : "\\s+example1\\s+",
+	      "make_link" : true	  
+       },
+       "example2" : {
+	      "search_keyword" : "example2",
+	      "search_pattern" : "\\s+example2\\s+",
+	      "make_link" : false
+       }
+    }
 }
 ```
 Note: The credentials are for example use and will not work. 

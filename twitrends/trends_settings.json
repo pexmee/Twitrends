@@ -13,6 +13,16 @@
         "key": "",
         "secret": ""
     },
-    "search_keyword": "",
-    "search_pattern": ""
+    "search_rules": {
+       "example1" : {
+          "search_keyword" : "example1",
+	      "search_pattern" : "\\s+example1\\s+",
+	      "make_link" : true	  
+       },
+       "example2" : {
+	      "search_keyword" : "example2",
+	      "search_pattern" : "\\s+example2\\s+",
+	      "make_link" : false
+       }
+    }
 }

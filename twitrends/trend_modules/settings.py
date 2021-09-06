@@ -2,10 +2,30 @@ import itertools
 import json
 import logging
 import os
+import re
 import sys
-from typing import List
+from typing import Dict, List, Union
 
 TWEET_IDS = os.path.join(os.path.dirname(__file__), "../twitter_ids.txt")
+
+
+class IndexDump:
+    def __init__(self, name: str, body: Dict[str, Union[str, int]]):
+        self.name = name
+        self.body = body
+
+
+class SearchRule:
+    def __init__(self, index_name: str, keyword: str, pattern: str, make_link: bool):
+        self.index_name = index_name
+        self.keyword = list(
+            map(
+                "".join,
+                itertools.product(*zip(keyword.upper(), keyword.lower())),
+            )
+        )
+        self.pattern = re.compile(pattern, re.I | re.M)
+        self.make_link = make_link
 
 
 class Settings:
@@ -18,8 +38,8 @@ class Settings:
         self.twitter_auth_secret = ""
         self.twitter_token_key = ""
         self.twitter_token_secret = ""
-        self.keywords: List[str] = []
-        self.pattern = ""
+        self.rules: List[SearchRule] = []
+
         try:
             with open(
                 os.path.join(os.path.dirname(__file__), "../trends_settings.json")
@@ -36,14 +56,15 @@ class Settings:
                 ]
                 self.twitter_token_key = settings["access_token"]["key"]
                 self.twitter_token_secret = settings["access_token"]["secret"]
-                keyword = settings["search_keyword"]
-                self.keywords = list(
-                    map(
-                        "".join,
-                        itertools.product(*zip(keyword.upper(), keyword.lower())),
+                for rule in settings["search_rules"].keys():
+                    self.rules.append(
+                        SearchRule(
+                            index_name=rule,
+                            keyword=settings["search_rules"][rule]["search_keyword"],
+                            pattern=settings["search_rules"][rule]["search_pattern"],
+                            make_link=settings["search_rules"][rule]["make_link"],
+                        )
                     )
-                )
-                self.pattern = settings["search_pattern"]
 
         except FileNotFoundError:
             logging.FATAL("trends_settings.json not found")

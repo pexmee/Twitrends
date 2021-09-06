@@ -5,6 +5,7 @@ import os
 
 import urllib3
 from elasticsearch import logger as es_logger
+
 from trend_modules.trend_bot import TrendBot
 
 

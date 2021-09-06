@@ -1,6 +1,5 @@
 import datetime
 import logging
-import re
 import signal
 import sys
 import threading
@@ -11,7 +10,9 @@ from typing import Callable, Dict, Generator, List, Optional, Union
 
 import tweepy
 from elasticsearch import Elasticsearch
-from trend_modules.settings import TWEET_IDS, Settings
+from elasticsearch.exceptions import NotFoundError
+
+from trend_modules.settings import TWEET_IDS, IndexDump, Settings
 
 
 class Seppuku:
@@ -33,25 +34,28 @@ class TrendTweetListener(tweepy.StreamListener):
         self.bot = bot
 
     def on_status(self, tweet):
-        dump: Dict[str, Union[str, int]] = {}
-        pattern = re.compile(self.bot.settings.pattern, re.I | re.M)
+        body: Dict[str, Union[str, int]] = {}
 
         if not tweet.retweeted and not tweet.text.startswith("RT @"):
-            match_ = pattern.search(tweet.text)
+            for rule in self.bot.settings.rules:
+                match_ = rule.pattern.search(tweet.text)
 
-            if match_:
-                logging.debug("adding tweet to dumps")
+                if match_:
+                    logging.debug("adding tweet to index_dumps..")
 
-                dump["tweet_id"] = tweet.id_str
-                dump["created_at"] = str(tweet.created_at)
-                dump["timestamp"] = datetime.datetime.now().isoformat()
-                dump["retweet_count"] = tweet.retweet_count
-                dump["likes"] = tweet.favorite_count
-                dump["substring"] = match_.group(0).upper()
-                dump["google_link"] = (
-                    "https://www.google.com/search?q=" + dump["substring"]
-                )
-                self.bot.dump_findings(dump)
+                    body["tweet_id"] = tweet.id_str
+                    body["created_at"] = str(tweet.created_at)
+                    body["timestamp"] = datetime.datetime.now().isoformat()
+                    body["retweet_count"] = tweet.retweet_count
+                    body["likes"] = tweet.favorite_count
+                    body["substring"] = match_.group(0).upper()
+
+                    if rule.make_link:
+                        body["google_link"] = (
+                            "https://www.google.com/search?q=" + body["substring"]
+                        )
+
+                    self.bot.dump_findings(IndexDump(rule.index_name, body))
 
     def on_error(self, status):
         logging.error(f"error in tweet listener {status}")
@@ -118,9 +122,9 @@ class TrendBot:
         self.tweet_listener = TrendTweetListener(self.twitter_api, self)
         self.tweet_stream = tweepy.Stream(self.twitter_api.auth, self.tweet_listener)
         self.mutex = threading.Lock()
-        self.dumps: List[
-            Dict[str, Union[str, int]]
-        ] = []  # Used to hold dumps if mutex is locked while updating
+        self.index_dumps: List[
+            IndexDump
+        ] = []  # Used to hold index dumps if mutex is locked while updating
 
     def stream_twitter(
         self,
@@ -128,7 +132,12 @@ class TrendBot:
         """Streams twitter posts, filtering on provided keywords"""
 
         try:
-            self.tweet_stream.filter(track=self.settings.keywords)
+            keywords: List[str] = []
+
+            for rule in self.settings.rules:
+                keywords += rule.keyword
+
+            self.tweet_stream.filter(track=keywords)
 
         except IncompleteRead as exc:
             logging.exception("IncompleteRead in stream_twitter:", exc_info=exc)
@@ -136,14 +145,13 @@ class TrendBot:
         except Exception as exc:
             logging.exception("unknown exception in stream_twitter:", exc_info=exc)
 
-    def dump_findings(self, dump: Optional[Dict[str, Union[str, int]]] = None):
+    def dump_findings(self, index_dump: Optional[IndexDump] = None):
         """
         Dumps all findings to Elasticsearch and caches tweet IDs in twitter_ids.txt.
         If mutex is locked this only saves dump in memory.
         """
-
-        if dump:
-            self.dumps.append(dump)
+        if index_dump:
+            self.index_dumps.append(index_dump)
 
         if self.mutex.acquire(False):
             try:
@@ -152,14 +160,19 @@ class TrendBot:
                 with open(
                     TWEET_IDS,
                     "a",
-                ) as twitter_h:
-                    for dump in self.dumps:
+                ) as id_h:
 
-                        if dump.get("tweet_id"):
-                            print(dump["tweet_id"], end="\n", file=twitter_h)
-                            self.es.index(index="tweet", body=dump)
+                    for index_dump in self.index_dumps:
 
-                    self.dumps.clear()
+                        if index_dump.body.get("tweet_id"):
+                            print(
+                                f'{index_dump.body["tweet_id"]}:{index_dump.name}',
+                                end="\n",
+                                file=id_h,
+                            )
+                            self.es.index(index=index_dump.name, body=index_dump.body)
+
+                    self.index_dumps.clear()
             finally:
                 self.mutex.release()
 
@@ -178,53 +191,73 @@ class TrendBot:
         Updates all tweets saved in Elasticsearch if they need to be updated with new values.
         """
 
-        def update_fields(obj: TrendBot, tweet_ids: List[int]):
+        def update_fields(
+            obj: TrendBot, tweet_ids: List[int], ids_names: Dict[int, str]
+        ):
             try:
                 for tweet in obj.twitter_api.statuses_lookup(tweet_ids):
 
-                    # Query Elasticsearch for the object with this tweet id
-                    res = obj.es.search(
-                        index="tweet",
-                        body={"query": {"match": {"tweet_id": tweet.id_str}}},
-                    )
+                    for rule in self.settings.rules:
+                        if rule.index_name != ids_names[tweet.id]:
+                            continue
 
-                    # Sanity check, we don't know if these fields are guaranteed to exist
-                    try:
+                        # Query Elasticsearch for the object with this tweet id
+                        try:
+                            res = obj.es.search(
+                                index=rule.index_name,
+                                body={"query": {"match": {"tweet_id": tweet.id_str}}},
+                            )
+                        except NotFoundError as exc:
+                            logging.debug(
+                                "NotFoundError in update_fields, couldn't find index in database",
+                                exc_info=exc,
+                            )
+                            continue
 
-                        for hit in res["hits"]["hits"]:
+                        # Sanity check, we don't know if these fields are guaranteed to exist
+                        try:
 
-                            updated_fields: Dict[str, Dict[str, Union[int, str]]] = {
-                                "doc": {}
-                            }
+                            for hit in res["hits"]["hits"]:
 
-                            if hit["_source"]["retweet_count"] < tweet.retweet_count:
-                                logging.info(
-                                    f"updated {tweet.id_str} with retweets: {tweet.retweet_count}"
-                                )
-                                updated_fields["doc"][
-                                    "retweet_count"
-                                ] = tweet.retweet_count
+                                updated_fields: Dict[
+                                    str, Dict[str, Union[int, str]]
+                                ] = {"doc": {}}
 
-                            if hit["_source"]["likes"] < tweet.favorite_count:
-                                logging.info(
-                                    f"updated {tweet.id_str} with likes: {tweet.favorite_count}"
-                                )
-                                updated_fields["doc"]["likes"] = tweet.favorite_count
+                                if (
+                                    hit["_source"]["retweet_count"]
+                                    < tweet.retweet_count
+                                ):
+                                    logging.info(
+                                        f"updated {tweet.id_str} with retweets: {tweet.retweet_count}"
+                                    )
+                                    updated_fields["doc"][
+                                        "retweet_count"
+                                    ] = tweet.retweet_count
 
-                            if updated_fields:
-                                updated_fields["doc"][
-                                    "updated_timestamp"
-                                ] = datetime.datetime.now().isoformat()
+                                if hit["_source"]["likes"] < tweet.favorite_count:
+                                    logging.info(
+                                        f"updated {tweet.id_str} with likes: {tweet.favorite_count}"
+                                    )
+                                    updated_fields["doc"][
+                                        "likes"
+                                    ] = tweet.favorite_count
 
-                                obj.es.update(
-                                    index="tweet", id=hit["_id"], body=updated_fields
-                                )
+                                if updated_fields:
+                                    updated_fields["doc"][
+                                        "updated_timestamp"
+                                    ] = datetime.datetime.now().isoformat()
 
-                    except KeyError as exc:
-                        logging.exception(
-                            "KeyError in update_fields - couldn't find expected result",
-                            exc_info=exc,
-                        )
+                                    obj.es.update(
+                                        index=rule.index_name,
+                                        id=hit["_id"],
+                                        body=updated_fields,
+                                    )
+
+                        except KeyError as exc:
+                            logging.exception(
+                                "KeyError in update_fields - couldn't find expected result",
+                                exc_info=exc,
+                            )
 
             except Exception as exc:
                 logging.exception("exception in update_fields", exc_info=exc)
@@ -233,21 +266,25 @@ class TrendBot:
             sleep(100)
             logging.info("updating tweets")
             buffer: List[int] = []
+            ids_names: Dict[int, str] = {}
 
             # Hold your horses, this is gonna take a while,
             # especially if there's a lot of cached IDs
             self.mutex.acquire()
 
             for id in self._tweet_cache():
-                buffer.append(id)
+                id = id.split(":")
+                ids_names[int(id[0])] = id[1]
+                buffer.append(int(id[0]))
 
                 # Twitter only allows lookup of up to 100 entries at a time.
                 if len(buffer) == 100:
-                    update_fields(self, buffer)
+                    update_fields(self, buffer, ids_names)
                     buffer.clear()
+                    ids_names.clear()
 
             if buffer:
-                update_fields(self, buffer)
+                update_fields(self, buffer, ids_names)
 
         except Exception as exc:
             logging.exception("exception in update_tweets:", exc_info=exc)
@@ -255,14 +292,14 @@ class TrendBot:
         finally:
             self.mutex.release()
 
-            if self.dumps:
+            if self.index_dumps:
                 self.dump_findings()
 
     @staticmethod
     def _run_parallel(*functions: Callable):
         """
         Starts all provided functions on separate TrendThreads.
-        Makes sure to terminate
+        Terminates threads if SIGINT or SIGTERM is received.
         """
 
         logging.debug("starting threads")
