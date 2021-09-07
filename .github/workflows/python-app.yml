@@ -35,7 +35,7 @@ jobs:
       id: rpm
       uses: naveenrajm7/rpmbuild@master
       with:
-       spec_file: "/home/runner/work/Twitrends/Twitrends/spec/twitrends.spec"
+       spec_file: "spec/twitrends.spec"
     
     - name: check-ls
       run: ls /home/runner/work/Twitrends/Twitrends
