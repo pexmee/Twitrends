@@ -32,20 +32,19 @@ pip install elasticsearch
 pip install urllib3
 ```
 
-<!-- ## Installation -->
+## Installation
 
-## NOTE: <br>Right now the .deb and .rpm packages are outdated. <br> Please clone repo and set up manually - fix for this is coming soon  
 
 <!-- .deb package installation:
 
 ```bash
 sudo dpkg -i twitrends_1.0.0-2_all.deb
-```
-.rpm package installation:
+``` -->
+RPM package installation example:
 
 ```bash
-sudo rpm -i twitrends_1.0.0-1_all.rpm
-``` -->
+sudo rpm -i twitrends_1.0.0-1.src.rpm
+```
 <br>
 
 ## Usage
@@ -85,7 +84,7 @@ and add your configuration. Here's an example configuration:
 Note: The credentials are for example use and will not work. 
 Only official credentials from the Twitter Developer Portal will be accepted.
 
-Once the configuration is done, [manually add the service](https://medium.com/@benmorel/creating-a-linux-service-with-systemd-611b5c8b91d6), enable and start the service: <br> Note: this will be fixed once .rpm & .deb packages are updated.
+Once the configuration is done, enable and start the service:
 ```bash
 sudo systemctl enable twitrends.service
 sudo systemctl start twitrends.service
