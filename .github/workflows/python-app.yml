@@ -57,7 +57,7 @@ jobs:
           prerelease: false
 
     - name: Build RPM package
-      id: rpm
+      id: rpm_build
       uses: naveenrajm7/rpmbuild@master
       with:
         spec_file: "twitrends.spec"
@@ -66,7 +66,7 @@ jobs:
       uses: actions/upload-artifact@v1.0.0
       with:
         name: Source RPM
-        path: ${{ steps.rpm.outputs.source_rpm_path }}
+        path: ${{steps.rpm_build.outputs.source_rpm_path}}
 
     - name: Upload Release Asset
       id: upload-release-asset
